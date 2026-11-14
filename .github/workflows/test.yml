@@ -1,0 +1,46 @@
+name: Playwright E2E Tests - Liverpool
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Permite ejecutar el workflow manualmente desde la pestaña "Actions" en GitHub
+
+jobs:
+  e2e-tests:
+    name: Ejecutar Pruebas E2E (Headless)
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+     
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      
+      - name: Instalar dependencias de Node
+        run: npm ci
+
+      - name: Instalar Google Chrome y dependencias del sistema
+        run: npx playwright install chrome --with-deps
+
+      
+      - name: Ejecutar pruebas de Playwright en modo Headless
+        run: npx playwright test
+
+      
+      - name: Subir Informe HTML de Playwright como artefacto
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-html-report
+          path: playwright-report/
+          retention-days: 14
