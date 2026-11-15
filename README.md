@@ -3,16 +3,14 @@
 # Arquitectura del Proyecto
 
 proy1211/
-├── .github/
-│   └── workflows/
-│       └── test.yml            # Pipeline CI/CD en GitHub Actions (Headless + Artefacto HTML)
-├── test/
-│   └── liverpool.spec.ts       # Suite principal dividida en 4 capas con auto-normalización UI/API
-├── playwright.config.ts        # Configuración global (Headless por defecto, HTML Reporter, Screenshots)
-├── run.js                      # Selector interactivo en consola para ejecución Headless / Headed
-├── TEST_STRATEGY.md            # Documento de estrategia, gestión de riesgos y escalabilidad
-├── package.json                # Dependencias y scripts de ejecución
-└── README.md                   # Documentación principal
+.github/workflows/test.yml            # Pipeline CI/CD en GitHub Actions (Headless + Artefacto HTML)
+test/liverpool.spec.ts       # Suite principal dividida en 4 capas con auto-normalización UI/API
+playwright.config.ts        # Configuración global (Headless por defecto, HTML Reporter, Screenshots)
+run.js                      # Selector interactivo en consola para ejecución Headless / Headed
+TEST_STRATEGY.md            # Documento de estrategia, gestión de riesgos y escalabilidad
+package.json                # Dependencias y scripts de ejecución
+README.md   # Documentación principal
+
 
 # Instalación y Ejecución Local
 
