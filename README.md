@@ -33,9 +33,9 @@ npm install
 npx playwright install chrome
 
 # 2. Ejecutar las pruebas:
-| Headless - Configurada Por defecto | `npm test` | `npx playwright test` | Ejecuta las pruebas en segundo plano sin interfaz gráfica. |
-| Headed | `npm run test:headed` | `npx playwright test --headed` | Abre Google Chrome y muestra toda la interacción en tiempo real. |
-| **Menú Interactivo en Consola** | `npm run test:menu` | `node run.js` | Permite elegir el modo de ejecución desde la terminal antes de iniciar.
+|Headless - Configurada Por defecto | `npm test` | `npx playwright test` | Ejecuta las pruebas en segundo plano sin interfaz gráfica. |
+|Headed | `npm run test:headed` | `npx playwright test --headed` | Abre Google Chrome y muestra toda la interacción en tiempo real. |
+|Menú Interactivo en Consola | `npm run test:menu` | `node run.js` | Permite elegir el modo de ejecución desde la terminal antes de iniciar.
 
 # 3 Enlace a una ejecución de acciones en GitHub
 El flujo ubicado en `.github/workflows/test.yml` se ejecuta automáticamente en cada `push` o `pull_request` hacia `main`, o manualmente mediante `workflow_dispatch`:
