@@ -35,6 +35,8 @@ jobs:
       
       - name: Ejecutar pruebas de Playwright en modo Headless
         run: npx playwright test
+        
+      - name: Ejecutar pruebas de Playwright extra
         run: npm install playwright playwright-extra
 
       
