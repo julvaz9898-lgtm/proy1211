@@ -6,8 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:menu": "node run.js"
-    
+    "test:menu": "node run.js",
+    "postinstall": "playwright install"
   },
   "keywords": [],
   "author": "",
