@@ -1,8 +1,5 @@
-# proy1211
 # Automatización E2E & Validación Multicapa UI vs API — Pagina de Liverpool
 # Arquitectura del Proyecto
-
-proy1211
 
 ♦️.github/workflows/test.yml            # Pipeline CI/CD en GitHub Actions (Headless + Artefacto HTML)
 
