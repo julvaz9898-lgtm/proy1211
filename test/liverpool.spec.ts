@@ -1,16 +1,19 @@
 import { test, expect, Locator } from '@playwright/test';
+import { chromium } from 'playwright-extra';
+import stealth from 'puppeteer-extra-plugin-stealth';
+import process from 'node:process';
+
+// Activamos el escudo anti-detección para el modo Headless
+chromium.use(stealth());
 
 /**
  * MÓDULO DE AUTO-NORMALIZACIÓN Y RECONCILIACIÓN DE PRECIOS (UI vs API)
- * Detecta cuando el DOM renderiza los centavos sin punto decimal (ej. $24430.00 en lugar de $244.30),
- * documenta la discrepancia, aplica la corrección de escala decimal y devuelve el valor sanado.
  */
 function reconciliarYCorregirPrecioUI(
   titulo: string,
   precioUiCrudo: number,
   precioApi: number
 ): { precioCorregido: number; fueCorregido: boolean; detalleLog: string } {
-  // Verificamos si el precio de la UI es exactamente 100 veces el precio de la API (centavos pegados sin punto)
   const esErrorDeCentavosPegados =
     !isNaN(precioApi) &&
     precioApi > 0 &&
@@ -40,9 +43,6 @@ function reconciliarYCorregirPrecioUI(
   };
 }
 
-/**
- * Extrae el precio numérico de la UI
- */
 async function extractRawUiPrice(priceContainer: Locator): Promise<number> {
   const primarySpan = priceContainer.locator('span.text-price-primary').first();
   const rawText = await primarySpan.innerText();
@@ -61,9 +61,6 @@ async function extractRawUiPrice(priceContainer: Locator): Promise<number> {
   return 0;
 }
 
-/**
- * Extrae el arreglo de productos del JSON devuelto por /api/plp/search
- */
 function extractProductsFromApiPayload(obj: any): any[] {
   if (!obj || typeof obj !== 'object') return [];
 
@@ -91,9 +88,6 @@ function extractProductsFromApiPayload(obj: any): any[] {
   return [];
 }
 
-/**
- * Extrae el precio efectivo desde `priceInfo` de Liverpool
- */
 function extractEffectiveApiPrice(priceInfo: any): number {
   if (!priceInfo || typeof priceInfo !== 'object') return NaN;
 
@@ -122,15 +116,36 @@ function extractEffectiveApiPrice(priceInfo: any): number {
 }
 
 test.describe('Arquitectura E2E Resiliente: Validación Multicapa UI vs API', () => {
-  test('Auditar Top 5 PlayStation 5 (Blanco - Menor precio) entre DOM y BFF (/api/plp/search)', async ({ page }, testInfo) => {
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+  test('Auditar Top 5 PlayStation 5 (Blanco - Menor precio) entre DOM y BFF (/api/plp/search)', async ({}, testInfo) => {
+    //const isHeaded = process.argv.includes('--headed');
+    const isHeaded = process.env.PW_HEADED === '1';
+
+    // Lanzamiento limpio y dinámico basado en la opción elegida
+    const browser = await chromium.launch({
+      headless: !isHeaded, // Si es headed es false (muestra ventana), si no, true (invisible)
+      args: [
+        ...(!isHeaded ? ['--headless=new'] : []),
+        '--disable-blink-features=AutomationControlled',
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--start-maximized'
+      ]
     });
 
+    const context = await browser.newContext({
+      viewport: { width: 1366, height: 768 },
+      locale: 'es-MX',
+      timezoneId: 'America/Mexico_City',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    });
+
+    const page = await context.newPage();
+
     await test.step('Capa 1 (UI): Navegación, búsqueda y aplicación de facetas', async () => {
-      await page.goto('https://www.liverpool.com.mx/tienda/home', { waitUntil: 'domcontentloaded' });
+      await page.goto('https://www.liverpool.com.mx/tienda/home', { waitUntil: 'domcontentloaded', timeout: 45000 });
       
       const searchInput = page.getByPlaceholder(/buscar/i).first();
+      await searchInput.waitFor({ state: 'visible', timeout: 20000 });
       await searchInput.click();
       await searchInput.pressSequentially('playstation 5', { delay: 80 });
       await searchInput.press('Enter');
@@ -208,7 +223,6 @@ test.describe('Arquitectura E2E Resiliente: Validación Multicapa UI vs API', ()
           continue;
         }
 
-        // Ejecutamos el módulo de diagnóstico y auto-corrección antes de validar
         const resultadoReconciliacion = reconciliarYCorregirPrecioUI(ui.title, ui.price, apiMatch.price);
         console.log(resultadoReconciliacion.detalleLog);
 
@@ -218,7 +232,6 @@ test.describe('Arquitectura E2E Resiliente: Validación Multicapa UI vs API', ()
           );
         }
 
-        // Validamos usando el precio ya corregido
         const priceDelta = Math.abs(resultadoReconciliacion.precioCorregido - apiMatch.price);
         if (priceDelta > 0.01 || isNaN(apiMatch.price)) {
           const msg = `[DISCREPANCIA PERSISTENTE] "${ui.title}" | UI: $${resultadoReconciliacion.precioCorregido.toFixed(2)} vs API: $${apiMatch.price.toFixed(2)}`;
@@ -244,27 +257,21 @@ test.describe('Arquitectura E2E Resiliente: Validación Multicapa UI vs API', ()
         }
       }
 
-      // Adjunta el reporte detallado en el Informe HTML de Playwright
-
       await testInfo.attach('auditoria-ui-vs-api.json', {
         body: JSON.stringify({ exactMatches, totalEvaluated: uiProducts.length, discrepanciesLog, details: auditReport }, null, 2),
         contentType: 'application/json',
       });
 
       console.log('--------------------------------------------------------------------');
-      console.log(`RESUMEN: ${exactMatches} de ${uiProducts.length} productos validados exactamente.`);
-      if (discrepanciesLog.length > 0) {
-        console.log('REPORTE DE DISCREPANCIAS DETECTADAS:');
-        discrepanciesLog.forEach((d) => console.log(`  * ${d}`));
-      } else {
-        console.log('REPORTE DE DISCREPANCIAS: Ninguna (100% de consistencia).');
-      }
+      console.log(`RESUMEN: ${exactMatches} de ${uiProducts.length} validados.`);
       console.log('--------------------------------------------------------------------\n');
 
       expect(
         exactMatches,
-        `Umbral de resiliencia fallido: se requieren al menos 3 coincidencias exactas (obtenidas: ${exactMatches}).`
+        `Umbral de resiliencia fallido: se requieren al menos 3 coincidencias exactas.`
       ).toBeGreaterThanOrEqual(3);
     });
+
+    await browser.close();
   });
 });
