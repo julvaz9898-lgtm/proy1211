@@ -31,8 +31,12 @@ git clone https://github.com
 cd proy1211
 
 # 2. Instalar y Ejecutar las pruebas:
-🟩 despues de clonar o descargar el repositorio ejecuta únicamente el siguiente comando en la raíz del proyecto para instalar todas las dependencias y descargar el navegador portable de forma automática el comando es : npm install
-🟩Elige el modo de ejecución que prefieras según tus necesidades: Menú Interactivo en Consola---->🔹 npm run test:menu
+🟩 despues de clonar o descargar el repositorio ejecuta únicamente el siguiente comando en la raíz del proyecto:
+🔹fnm env --shell powershell | Out-String | Invoke-Expression
+para instalar todas las dependencias y descargar el navegador portable de forma automática el comando es : 
+🔹npm install
+🟩Elige el modo de ejecución que prefieras según tus necesidades: Menú Interactivo en Consola:
+🔹npm run test:menu
 
 # 3 Enlace a una ejecución de acciones en GitHub
 El flujo ubicado en `.github/workflows/test.yml` se ejecuta automáticamente en cada `push` o `pull_request` hacia `main`, o manualmente mediante `workflow_dispatch`:
