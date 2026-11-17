@@ -25,21 +25,18 @@ proy1211
 *Node.js** v18 o superior.
 *Google Chrome** instalado en el sistema operativo.
 
-# 1. Clonar e instalar dependencias
+# 1. Clonar github
 bash
 git clone https://github.com
 cd proy1211
-npm install
-npx playwright install chrome
 
-# 2. Ejecutar las pruebas:
-|Headless - Configurada Por defecto | `npm test` | `npx playwright test` | Ejecuta las pruebas en segundo plano sin interfaz gráfica. |
-|Headed | `npm run test:headed` | `npx playwright test --headed` | Abre Google Chrome y muestra toda la interacción en tiempo real. |
-|Menú Interactivo en Consola | `npm run test:menu` | `node run.js` | Permite elegir el modo de ejecución desde la terminal antes de iniciar.
+# 2. Instalar y Ejecutar las pruebas:
+🟩 despues de clonar el repositorio ejecuta únicamente el siguiente comando en la raíz del proyecto para instalar todas las dependencias y descargar el navegador portable de forma automática el comando es : npm install
+🟩Elige el modo de ejecución que prefieras según tus necesidades: Menú Interactivo en Consola---->🔹 npm run test:menu
 
 # 3 Enlace a una ejecución de acciones en GitHub
 El flujo ubicado en `.github/workflows/test.yml` se ejecuta automáticamente en cada `push` o `pull_request` hacia `main`, o manualmente mediante `workflow_dispatch`:
 1. Instala las dependencias del proyecto y Google Chrome.
-2. Ejecuta la suite completa en modo *Headless*.
+2. Ejecuta la suite completa en modo Headless.
 3. Publica el directorio `playwright-report/` como un artefacto descargable llamado `playwright-html-report`.
 
