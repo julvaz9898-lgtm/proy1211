@@ -7,7 +7,7 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:menu": "node run.js",
-    "postinstall": "playwright install"
+    "postinstall": "npx playwright install chromium"
   },
   "keywords": [],
   "author": "",
