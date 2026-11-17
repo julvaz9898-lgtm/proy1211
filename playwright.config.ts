@@ -1,30 +1,22 @@
 import { defineConfig } from '@playwright/test';
-
+if (process.argv.includes('--headed')) {
+  process.env.PW_HEADED = '1';
+}
 export default defineConfig({
   testDir: './test',
   timeout: 60000,
-  
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }]
-  ],
-
+  reporter: [['list']],
   use: {
-    headless: true,
-    // (Importante) Sin 'channel: 'chrome'' para que use el Chromium interno de Playwright
+   // headless: true,
     viewport: { width: 1366, height: 768 },
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     locale: 'es-MX',
     timezoneId: 'America/Mexico_City',
-    
-    screenshot: 'only-on-failure',
-    trace: 'retain-on-failure',
-
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     launchOptions: {
       args: [
+        //'--headless=new',
         '--disable-blink-features=AutomationControlled',
-        '--no-sandbox',
-        '--disable-infobars'
+        '--no-sandbox'
       ]
     }
   }
